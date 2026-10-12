@@ -41,6 +41,8 @@ Skill vẫn đọc quy tắc và template từ Project docs (`Context_Laser/`). 
 
 ## Việc còn thiếu
 
-- `tests/samples/` mới có file `.nc`. Chưa có file `.dxf` đầu vào tương ứng nên chưa chạy lại được kiểm tra khớp từng byte. Cần bổ sung DXF cùng mã (26-057027, 26-057101, 26-057140, 26-058543, 26-059090, 26-059097).
-- Skill NC còn nhắc các mẫu 26-058544, 26-058546, 26-058551 chưa có trong `tests/samples/`.
+- `tests/samples/` đã có DXF của 26-057025, 26-057027, 26-057140, 26-057412, 26-058546, 26-058551, 26-059090. Ba mã có đủ cặp DXF và NC để kiểm tra khớp từng byte: 26-057027, 26-057140, 26-059090.
+- Còn thiếu DXF của 26-057101, 26-058543, 26-059097 (đã có `.nc`).
+- Còn thiếu `.nc` của 26-057025, 26-057412, 26-058546, 26-058551 (đã có DXF). Mẫu 26-058544 chưa có cả hai.
+- DXF của 26-057025, 26-057027, 26-057412 là AC1021; các file còn lại là AC1024. Template chuẩn là AC1024.
 - Đường dẫn máy cá nhân (`C:\Users\ADMIN\...`) còn cứng trong skill NC.
