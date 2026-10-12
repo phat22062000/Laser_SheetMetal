@@ -3,7 +3,7 @@ name: "dxf-sheetmetal"
 description: "Tạo bản vẽ triển khai kim loại tấm từ hình vẽ trong file PDF hay dữ liệu DXF."
 ---
 
-## Yêu cầu đầu ra
+## Yêuu cầu đầu ra
 - Đầu ra là file DXF đặt tên theo cú pháp: "26-" + "mã yêu cầu" (mã yêu cầu là 6 số dưới mã vạch). Ví dụ: 26-059090.dxf.
 - Lưu file DXF vào chính thư mục chứa PDF yêu cầu.
 - Công thức tính chiều dài phôi trước uốn: Kích thước ngoài + Kích thước ngoài - Độ giãn dài.
