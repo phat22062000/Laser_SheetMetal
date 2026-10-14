@@ -20,8 +20,8 @@ description: "Tạo chương trình NC cắt laser định dạng CamMagic LA (M
 ## Quy trình
 1. Nếu người dùng nêu số đơn / folder: đường dẫn thật là `C:\Users\ADMIN\OneDrive\Desktop\SheetMetal\AI_Work\<số đơn>` ("Máy tính" là tên hiển thị của `Desktop`). Xin quyền folder, liệt kê, stage các file `26-*.dxf` và `<số đơn>.pdf`.
 2. Đọc trang CAD依頼書 trong PDF (bản scan: `pdftoppm -r 100 -f 1 -l 1` rồi xem ảnh). Với **từng mã riêng biệt**: lấy **vật liệu**, **độ dày (cột 板厚)**, mã khách hàng, kích thước X/Y để đối chiếu khung bao DXF. **Không dùng chung một độ dày mặc định cho cả đơn** — mỗi mã trong CAD依頼書 có thể khác độ dày (đã từng sai ở đơn 521006-13: dùng t≤3.2 cho toàn bộ 11 mã trong khi thực tế là 4.5/6/9mm theo từng mã).
-3. Vật liệu chỉ dùng để xác định **nhóm**: tra mục 1 của `Quy_Tac_Laser.md` (VD: SPHCP = No205, SS400 → SS; 2B, HL, 304 → SUS; A5052 → AL; đồng/đồng thau → CU). "SPHCP t3.2" = nhóm SS, dày 3.2.
-4. Xem trang bản vẽ của mã khi cần kiểm tra lỗ (taro M6 → lỗ mồi φ5, lỗ khoan φ...), vát C, ghi chú. Đọc `DS_Khach_Hang.md` theo mã khách hàng; áp dụng nếu có quy định ảnh hưởng tới NC (joint, lỗ trắng, vạch dấu, bo R, xác nhận khi DXF khác bản vẽ...). VD khách 851 (合資会社メイナン): cho phép biến dạng lỗ do uốn, các vị trí hàn cần kẻ dấu ngay cả khi không có chỉ thị — giải thích vì sao DXF có đường vạch dấu/kegaki.
+3. Vật liệu chỉ dùng để xác định **nhóm**: tra mục 7 của `Quy_tac_laser_kim_loai_tam.md` (VD: SPHCP = No205, SS400 → SS; 2B, HL, 304 → SUS; A5052 → AL; đồng/đồng thau → CU). "SPHCP t3.2" = nhóm SS, dày 3.2.
+4. Xem trang bản vẽ của mã khi cần kiểm tra lỗ (taro M6 → lỗ mồi φ5, lỗ khoan φ...), vát C, ghi chú. Đọc `DS_khach_hang_yeu_cau_dac_biet.md` theo mã khách hàng; áp dụng nếu có quy định ảnh hưởng tới NC (joint, lỗ trắng, vạch dấu, bo R, xác nhận khi DXF khác bản vẽ...). VD khách 851 (合資会社メイナン): cho phép biến dạng lỗ do uốn, các vị trí hàn cần kẻ dấu ngay cả khi không có chỉ thị — giải thích vì sao DXF có đường vạch dấu/kegaki.
 5. Kiểm tra DXF trước khi chạy:
    - Khung bao khớp X/Y của CAD依頼書 (lệch thì báo; khách yêu cầu xác nhận thì không tự làm).
    - Laser R: góc ngoài ≤ 90° phải đã được bo theo bảng (góc vát C 135° và góc lõm không bo). DXF thiếu R bắt buộc thì báo người dùng.
@@ -76,27 +76,30 @@ M30
     `G00X28.Y7.G40` / `M98P9010` / `G01G41X28.Y2.5` / `G03X32.5Y7.J4.5` / `G01X32.5Y17.` / `G03X23.5Y17.I-4.5` / `G01X23.5Y7.` / `G03X28.Y2.5I4.5` / `M121` / `M199`
 - **Vạch dấu / kegaki** (LINE/ARC màu đỏ, ACI color 62 = `1`): cắt bằng `M98P9017` (thay vì 9010), **không bù G41, không đoạn dẫn vào riêng** — đục ngay tại điểm bắt đầu rồi cắt thẳng. Cắt **trước tất cả** (trước khe, lỗ, biên ngoài). Nhiều cụm thì xếp theo khoảng cách từ gốc tuyệt đối (0,0) đến điểm đục, tăng dần.
   - **Vòng kín**: đục tại đỉnh gần gốc tuyệt đối (0,0) nhất, chạy chiều kim đồng hồ (giống quy ước biên ngoài), khép kín về điểm đầu.
-  - **Đường hở** (2 đầu tự do): mỗi đầu được kéo dài ra ngoài biên của chi tiết một đoạn `KEGAKI_OFFSET = 3.0` (giả định cố định, đã khớp 3 mẫu có piercing_ngoài=6; **chưa xác nhận có tỉ lệ theo piercing ngoài hay không** — nếu gặp phôi khác piercing_ngoài mà kegaki trông lệch thì hỏi lại người dùng), theo hướng vuông góc với cạnh biên mà đầu đó chạm tới (trái/phải/trên/dưới khung bao biên ngoài). Chọn đầu có điểm kéo dài gần gốc tuyệt đối (0,0) hơn làm điểm đục, dẫn thẳng (không bù) tới đầu đường gốc rồi chạy tới đầu tự do còn lại.
+  - **Đường hở** (2 đầu tự do): mỗi đầu được kéo dài ra ngoài biên của chi tiết một đoạn `KEGAKI_OFFSET = 3.0` (giả định cố định, đã khớp 3 mẫu có piercing_ngoai=6; **chưa xác nhận có tỉ lệ theo piercing ngoài hay không** — nếu gặp phôi khác piercing_ngoai mà kegaki trông lệch thì hỏi lại người dùng), theo hướng vuông góc với cạnh biên mà đầu đó chạm tới (trái/phải/trên/dưới khung bao biên ngoài). Chọn đầu có điểm kéo dài gần gốc tuyệt đối (0,0) hơn làm điểm đục, dẫn thẳng (không bù) tới đầu đường gốc rồi chạy tới đầu tự do còn lại.
   - Điểm đục/kéo dài của kegaki cũng tính vào khung bao `(<mã>.DXF / rộng X cao Y)` ở dòng tiêu đề.
   - Mẫu đường hở 26-058543: `G00X5.Y-3.G40` / `M98P9017` / `G01X5.Y0.` / `G01X5.Y16.5` / `G01X11.Y16.5` / `G01X11.Y0.` / `M121` / `M199`
   - Đã khớp byte-từng-byte với 4/5 mẫu thực tế (26-058543, 26-058544 khớp hoàn toàn; 26-058546 và 26-058551 khớp trừ hai lệch nhỏ không liên quan kegaki, xem mục dưới). Mẫu 26-058549 không khớp cả hình dạng lẫn kích thước khung bao so với DXF gốc của chính nó — nghi DXF/NC mẫu bị gửi nhầm, cần hỏi lại người dùng nếu gặp lại tình huống này.
 - **Khe cắt (スリット)** (đường hở, VD khe giảm ứng suất ở góc trong khi uốn): cắt **sau vạch dấu, trước lỗ và biên ngoài**. Đục tại đầu khe nằm ngoài chi tiết (phía phế liệu), **không G41, không đoạn dẫn vào**, chạy theo đường khe tới đầu kia. Nhiều khe: chọn khe có điểm đục gần vị trí hiện tại nhất (từ gốc 0,0; sau mỗi khe tính từ điểm cuối khe). Cung trong khe ghi đủ I và J. Mẫu 26-057140:
   `G00X116.Y117.6G40` / `M98P9010` / `G01X118.854Y120.454` / `G02X119.207Y120.6I0.354J-0.354` / `G01X120.8Y120.6` / `M121` / `M199`
-- **Biên ngoài**: chiều kim đồng hồ, bù G41. Điểm đục trên cạnh trái (đoạn thẳng đứng dài nhất ở X nhỏ nhất), nằm ngoài biên đúng chiều dài piercing ngoài, dẫn vào theo phương ngang. Cắt dừng trước điểm vào một đoạn bằng joint ngoài.
+- **Biên ngoài**: chiều kim đồng hồ, bù G41. Điểm đục nằm ngoài biên đúng chiều dài piercing ngoài, dẫn vào vuông góc với cạnh. Cắt dừng trước điểm vào một đoạn bằng joint ngoài.
+  - **Mặc định: cạnh trái** — điểm đục trên cạnh trái (đoạn thẳng đứng dài nhất ở X nhỏ nhất), dẫn vào theo phương ngang.
+  - **QUY TẮC MỚI (14/10/2026, người dùng yêu cầu; ví dụ 26-060094 phôi 250 × 9):** nếu đoạn thẳng theo Oy (cạnh trái) dài < 10 (không tính vát C / bo R) thì đục piercing ngoài tại **cạnh nằm trên trục Ox** (đoạn thẳng dài nhất ở Y nhỏ nhất): điểm vào cách đầu trái của đoạn thẳng 40 (nếu đoạn thẳng ngắn hơn 80 thì lấy giữa đoạn — giả định của Claude, chưa được xác nhận), điểm đục nằm dưới Ox đúng chiều dài piercing ngoài (Y = −piercing), dẫn vào vuông góc lên cạnh, cắt về phía trái (chiều kim đồng hồ), dừng cách điểm vào một đoạn joint ngoài. Chiều cao ở dòng tiêu đề tính cả điểm đục (26-060094: 250 × 15; NC: `G00X42.Y-6.G40` / `M98P9010` / `G01G41X42.Y0.` / `G01X2.Y0.` … / `G01X43.Y0.`).
 - **Phôi dài hẹp (Y ≤ 100 và X ≥ 1000) có marker J / LJ** (TEXT "J" và "LJ" + POINT nằm trên cạnh biên; mẫu 26-057101.nc, SPHCP t3.2): không dùng piercing cạnh trái. Biên ngoài tách thành **2 đường cắt**, đều theo chiều kim đồng hồ, **LJ trước, J sau**.
   - Điểm đục = marker dịch ra ngoài theo pháp tuyến cạnh một đoạn piercing ngoài (SS ≤3.2: 3 → Y102.5 khi marker ở Y99.5); dẫn vào vuông góc `G01G41` tới marker.
   - Khoảng hở (micro joint) tại mỗi marker = **joint ngoài tra theo bảng vật liệu/độ dày, không cố định 0.8** (SS ≤3.2: 0.8; SUS/AL ≤8 và CU: 0.7; SS 4–16, SUS/AL ≥9: 1).
   - Đường 1 bắt đầu tại LJ, chạy cả biên, dừng cách J một đoạn bằng joint ngoài (SS ≤3.2: X29.2 khi J ở X30). Đường 2 bắt đầu tại J, chạy dọc cạnh, dừng cách LJ một đoạn joint ngoài (SS ≤3.2: X1168.7 khi LJ ở X1169.5). Đường 2 kết thúc `G01G40` / `M30`.
   - Đầu dòng 2 ghi `1199.5 X 102.5` (chiều cao tính cả điểm đục ngoài).
   - Mẫu (SS t3.2): `G00X1169.5Y102.5G40` / `M98P9010` / `G01G41X1169.5Y99.5` / `G01X1194.5Y99.5` / `G02X1199.5Y94.5J-5.` … `G01X29.2Y99.5` / `M121` / `M199` / `G00X30.Y102.5G40` / `M98P9010` / `G01G41X30.Y99.5` / `G01X1168.7Y99.5` / `M121` / `M199` / `G01G40` / `M30`.
-- **Vị trí Y của piercing ngoài** theo chiều dài L của đoạn thẳng cạnh trái (không tính phần vát C / bo R):
+- **Vị trí Y của piercing ngoài** (cạnh trái) theo chiều dài L của đoạn thẳng cạnh trái (không tính phần vát C / bo R):
   - L ≤ 100 → giữa cạnh. VD 26-059090: cạnh Y5–Y86.8 → Y45.9.
   - L > 100 → cách đầu dưới của cạnh 40. VD 26-059091: cạnh Y5–Y131 → Y45; 26-059097: cạnh Y0.5–Y347.42 → Y40.5.
+  - L < 10 → dùng quy tắc mới ở trên (đục tại cạnh trên Ox).
 - **Góc bo laser R (ARC)** trên biên: cung theo chiều kim đồng hồ ghi `G02`, ngược chiều ghi `G03`; `I`, `J` = tâm − điểm đầu cung, thành phần bằng 0 thì bỏ (làm tròn 3 số lẻ trước khi xét bằng 0). VD 26-059097: `G01X0.Y347.42` / `G02X0.5Y347.92I0.5` / `G01X1674.5Y347.92` / `G02X1675.Y347.42J-0.5`.
 - Đường uốn (DASHED) không cắt.
 - CUTTING_LENGTH tính cả đoạn dẫn vào, cung tính theo chiều dài cung. RAPID_LENGTH tính từ gốc (0,0) qua các điểm đục, không tính quay về. BEAM_ON = số lần `M98P9010` + `M98P9017`.
 
-## Bảng piercing / joint (theo Quy_Tac_Laser.md mục 2)
+## Bảng piercing / joint (theo Quy_tac_laser_kim_loai_tam.md mục 2)
 | Nhóm | Độ dày | Piercing ngoài | Joint ngoài | Piercing lỗ |
 |---|---|---|---|---|
 | SS | ≤3.2 | 3 | 0.8 | 6 |
@@ -107,7 +110,7 @@ M30
 | AL | ≤8 | 6 | 0.7 | 6 |
 | AL | 9–18 | 10 | 1 | 10 |
 | CU | mọi độ dày | 6 | 0.7 | 6 |
-Nếu `Quy_Tac_Laser.md` được cập nhật khác bảng này thì theo file quy tắc và sửa `TABLE` trong script.
+Nếu `Quy_tac_laser_kim_loai_tam.md` được cập nhật khác bảng này thì theo file quy tắc và sửa `TABLE` trong script.
 
 ## Lệch nhỏ đã biết, chưa có quy tắc tổng quát (không chặn sản xuất)
 - 26-058546.nc: tâm lỗ tròn φ19 trong mẫu lệch Y +0.5mm so với tâm thực trong DXF (18. thay vì 17.5) — có vẻ là chỉnh tay riêng lẻ trong file mẫu, script vẫn dùng tâm DXF.
@@ -137,7 +140,7 @@ def fmt(v):
 
 MARKS = {}
 KEGAKI = []
-KEGAKI_OFFSET = 3.0   # khoảng cách đục ra ngoài biên cho kegaki hở (giả định, xem Quy_tac_NC_Cam_LA.md)
+KEGAKI_OFFSET = 3.0   # khoảng cách đục ra ngoài biên cho kegaki hở (giả định, xem Quy_tac_NC_CamMagic_LA.md)
 
 def read_dxf(path):
     raw = open(path, 'rb').read().decode('cp932', errors='replace').replace('\r\n', '\n').split('\n')
@@ -209,7 +212,7 @@ def chain(segs):
         out = [dict(sg, p=sg['p'], q=sg['q']) for sg in out]
     return out
 
-# (piercing ngoài, joint ngoài, piercing lỗ) theo Quy_Tac_Laser.md mục 2
+# (piercing ngoài, joint ngoài, piercing lỗ) theo Quy_tac_laser_kim_loai_tam.md mục 2
 TABLE = {
     'SS':  [(3.2, (3, 0.8, 6)), (5, (6, 1, 6)), (9, (6, 1, 6)), (16, (10, 1, 10))],
     'SUS': [(8, (6, 0.7, 6)), (16, (10, 1, 10))],
@@ -476,11 +479,25 @@ def build(dxf, group, t):
     d = 1 if b[1] > a[1] else -1                 # hướng chạy trên cạnh trái (CW: đi lên)
     # vị trí piercing ngoài theo chiều dài cạnh trái L:
     #   L <= 100 -> giữa cạnh ; L > 100 -> cách đầu dưới của cạnh 40
+    #   L < 10 (quy tắc 14/10/2026) -> đục tại cạnh nằm trên Ox, cách đầu trái của đoạn thẳng 40
     Lr = abs(b[1] - a[1])
-    sy = (a[1] + b[1]) / 2 if Lr <= 100 + 1e-9 else min(a[1], b[1]) + 40
-    start = (xmin, sy)
-    seq = [sg[(i0+k) % len(sg)] for k in range(1, len(sg))]   # các đoạn sau cạnh trái, kết thúc tại a
-    end = (xmin, sy - d*joint_out)
+    bottom = False
+    if Lr < 10 and not split_mode:
+        ymin_ = min(g['p'][1] for g in sg)
+        cb = [(abs(g['q'][0]-g['p'][0]), k) for k, g in enumerate(sg)
+              if g['t'] == 'L' and abs(g['p'][1]-ymin_) < 1e-6 and abs(g['q'][1]-ymin_) < 1e-6]
+        if not cb: sys.exit("Không có cạnh thẳng trên Ox để đục piercing ngoài")
+        Lb, i0 = max(cb)
+        a, b = sg[i0]['p'], sg[i0]['q']
+        xl = min(a[0], b[0]); off = min(40.0, Lb / 2)
+        start = (xl + off, ymin_); bottom = True
+        dx_ = (b[0]-a[0]) / Lb
+        end = (start[0] - dx_*joint_out, ymin_)
+    else:
+        sy = (a[1] + b[1]) / 2 if Lr <= 100 + 1e-9 else min(a[1], b[1]) + 40
+        start = (xmin, sy)
+        end = (xmin, sy - d*joint_out)
+    seq = [sg[(i0+k) % len(sg)] for k in range(1, len(sg))]   # các đoạn sau cạnh vào, kết thúc tại a
     ys = [g['p'][1] for g in sg] + [g['q'][1] for g in sg]
     xs0 = [g['p'][0] for g in sg] + [g['q'][0] for g in sg]
 
@@ -541,7 +558,8 @@ def build(dxf, group, t):
         pp = pps[0]
         xs0 = xs0 + [p[0] for p in pps]; ys = ys + [p[1] for p in pps]
     else:
-        pp = (xmin - pierce_out, sy)
+        pp = (start[0], start[1] - pierce_out) if bottom else (xmin - pierce_out, sy)
+        if bottom: ys.append(pp[1])
         rapid += math.dist(pos, pp)
         body += ["G00X%sY%sG40" % (fmt(pp[0]), fmt(pp[1])), "M98P9010",
                  "G01G41X%sY%s" % (fmt(start[0]), fmt(start[1]))]
