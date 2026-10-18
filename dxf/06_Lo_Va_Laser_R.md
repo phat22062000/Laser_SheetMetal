@@ -1,0 +1,11 @@
+# Lỗ nhỏ hơn mức tối thiểu (POINT piercing) và Laser R bo góc ngoài
+
+> Trích từ `skills/dxf-sheetmetal/SKILL.md` (dòng 55–62). Nguồn chuẩn là file SKILL.md; sửa ở đó trước rồi cập nhật lại file này.
+
+- Lỗ nhỏ hơn mức tối thiểu của máy laser: so đường kính lỗ (kể cả lỗ mồi taro) với cột "Lỗ nhỏ nhất" trong `Quy_Tac_Laser.md` mục 2 theo nhóm vật liệu và độ dày (ví dụ thép 12t: tối thiểu φ6 nên φ5 không khoét được; thép 16t trở lên: tối thiểu bằng độ dày). Lỗ nhỏ hơn mức này, hoặc bản vẽ ghi PIERCING/ピアス, thì KHÔNG vẽ CIRCLE mà vẽ một POINT (piercing) đặt đúng tâm lỗ, layer 0 (POINT chỉ cần tọa độ 10/20/30). Ví dụ 26-059668/059669 (SS400 t12, 6-M6, ghi PIERCING): 6 POINT tại tâm 6 lỗ mồi φ5, không vẽ vòng tròn. Nếu khách hàng có quy định riêng trong `DS_Khach_Hang.md` (ví dụ khách 875: lỗ nhỏ hơn độ dày làm lỗ trắng) thì theo khách hàng; không tự suy đoán cách biểu diễn khác, nếu chưa rõ thì hỏi.
+- Laser R (bo góc ngoài): với hình không có chỉ thị riêng (bản vẽ và danh sách khách hàng đặc biệt không nói gì), PHẢI bo các góc ngoài (góc lồi) có góc ≤ 90° theo bảng `Quy_Tac_Laser.md` (mục 2) theo nhóm vật liệu và độ dày:
+  - Thép (SS: SPHC, SPCC, SS400...): dày ≤ 5 → R0.5; 6–9 → R2; 10–16 → không bo; ≥ 19 → R3 cả góc trong và ngoài.
+  - Inox/khác: ≤ 6 → R0.5; 7 trở lên → không bo. Nhôm: ≤ 6 → R0.5. Đồng/đồng thau: ≤ 5 → R0.5.
+  - Góc đã vát C (135°) và góc lõm (góc trong) không bo (trừ thép ≥ 19t). Nếu khách hàng có quy định riêng (không bo, bo R3...) thì theo khách hàng; bản vẽ có ghi R thì theo bản vẽ.
+  - Ghi chú dạng "n-Rx" (ví dụ 2-R3) có thể xuất hiện ở NHIỀU hình chiếu khác nhau, mỗi nơi là n góc riêng. Phải liệt kê mọi ghi chú "n-Rx" trên tất cả hình chiếu của chi tiết, cộng số góc, rồi đối chiếu với số góc ngoài thực tế của biên dạng. Góc nào đã có ghi chú thì bo theo bản vẽ; chỉ góc chưa có ghi chú nào mới áp bảng laser mặc định. Ghi chú "(n-Rx)" trong ngoặc ở hình mặt cắt thường là R uốn, không phải R góc phôi. Ví dụ 26-059946 (SS400 t3.2): 2-R3 ở hình chiếu cánh thứ nhất + 2-R3 ở hình chiếu cánh thứ hai = cả 4 góc phôi R3 (trước đây chỉ bo 2 góc R3, 2 góc còn lại để R0.5 là sai).
+  - Vẽ bằng ARC (tròn tiếp tuyến với 2 cạnh), cắt ngắn 2 cạnh đi tại điểm tiếp tuyến. Kích thước ghi trên bản vẽ là kích thước chưa bo.

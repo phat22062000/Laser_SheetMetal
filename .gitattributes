@@ -1,0 +1,5 @@
+*.dxf -text
+*.nc -text
+*.xlsx binary
+*.md text eol=lf
+*.py text eol=lf
